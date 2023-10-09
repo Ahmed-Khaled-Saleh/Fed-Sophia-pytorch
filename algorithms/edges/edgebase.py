@@ -100,10 +100,12 @@ class Edgebase:
             output = self.model(x)
             if isinstance(self.model, Logistic_Regression):
                 test_acc += torch.sum(((output >= 0.5) == y).type(torch.int)).item()
+            elif isinstance(self.model, Linear_Regression):
+                test_acc += torch.sum((output == y)).item()
             else:
                 test_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
 
-            loss += self.loss(output, y)
+            loss += self.loss(output, y) + self.regularize()
         return test_acc, loss, y.shape[0]
 
     def train_error_and_loss(self):
@@ -116,6 +118,7 @@ class Edgebase:
             output = self.model(x)
             if isinstance(self.model, Logistic_Regression):
                 train_acc += torch.sum(((output >= 0.5) == y).type(torch.int)).item()
+            
             else:
                 train_acc += (torch.sum(torch.argmax(output, dim=1) == y)).item()
             loss += self.loss(output, y)
@@ -187,3 +190,18 @@ class Edgebase:
         if regularize:
             loss += self.regularize()
         return loss
+
+    def get_ema_grads(self):
+        for ema_grad in self.ema_grads:
+            ema_grad.detach()
+        return self.ema_grads
+    
+    def get_ema_hess(self):
+        for ema_hess in self.ema_hess:
+            ema_hess.detach()
+        return self.ema_hess
+    
+    def get_clippings(self):
+        for clipping in self.clippings:
+            clipping.detach()
+        return self.clippings

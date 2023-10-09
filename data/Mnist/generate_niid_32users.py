@@ -20,7 +20,7 @@ if not os.path.exists(dir_path):
     os.makedirs(dir_path)
 
 # Get MNIST data, normalize, and divide by level
-mnist = fetch_openml('MNIST original', data_home='./data')
+mnist = fetch_openml('mnist_784', data_home='./data')
 mu = np.mean(mnist.data.astype(np.float32), 0)
 sigma = np.std(mnist.data.astype(np.float32), 0)
 mnist.data = (mnist.data.astype(np.float32) - mu)/(sigma+0.001)
@@ -69,8 +69,8 @@ for user in trange(NUM_USERS):
         if(NUM_USERS <= 20): 
             num_samples = num_samples * 2
         if idx[l] + num_samples < len(mnist_data[l]):
-            X[user] += mnist_data[l][idx[l]:idx[l]+num_samples].tolist()
-            y[user] += (l*np.ones(num_samples)).tolist()
+            X[user] += mnist_data[l][idx[l]:idx[l]+num_samples].values.tolist()
+            y[user] += (l*np.ones(num_samples)).values.tolist()
             idx[l] += num_samples
             print("check len os user:", user, j,
                   "len data", len(X[user]), num_samples)

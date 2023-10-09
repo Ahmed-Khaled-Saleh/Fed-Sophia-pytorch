@@ -182,6 +182,9 @@ class SophiaG(Optimizer):
         defaults = dict(lr=lr, betas=betas, rho=rho, 
                         weight_decay=weight_decay, 
                         maximize=maximize, capturable=capturable, version=version)
+        self.ema_hessian = []
+        self.ema_grads = []
+        self.clippings = []
         super(SophiaG, self).__init__(params, defaults)
 
     def __setstate__(self, state):
@@ -261,7 +264,7 @@ class SophiaG(Optimizer):
                 if self.defaults['capturable']:
                     bs = torch.ones((1,), dtype=torch.float, device=p.device) * bs
 
-            sophiag(params_with_grad,
+            out = sophiag(params_with_grad,
                     grads,
                     exp_avgs,
                     hessian,
@@ -274,10 +277,12 @@ class SophiaG(Optimizer):
                     weight_decay=group['weight_decay'],
                     maximize=group['maximize'],
                     capturable=group['capturable'],
-                    version= self.defaults['version'])
+                    version= self.defaults['version'],
+                    )
+            exp_avgs, self.clippings = out[0], out[1]
             #import pdb; pdb.set_trace()
         # return both loss and exp_avg for outside tracking
-        return loss, exp_avgs
+        return loss, exp_avgs, self.clippings
 
 def sophiag(params: List[Tensor],
           grads: List[Tensor],
@@ -293,7 +298,8 @@ def sophiag(params: List[Tensor],
           lr: float,
           weight_decay: float,
           maximize: bool,
-          version: int = 0):
+          version: int = 0,
+          ):
 
     if not all(isinstance(t, torch.Tensor) for t in state_steps):
         raise RuntimeError("API has changed, `state_steps` argument must contain a list of singleton tensors")
@@ -301,7 +307,7 @@ def sophiag(params: List[Tensor],
     
     func = _single_tensor_sophiag
 
-    func(params,
+    return func(params,
                 grads,
                 exp_avgs,
                 hessian,
@@ -314,7 +320,8 @@ def sophiag(params: List[Tensor],
                 weight_decay=weight_decay,
                 maximize=maximize,
                 capturable=capturable,
-                version=version)
+                version=version,
+                )
 
 def _single_tensor_sophiag(params: List[Tensor],
                          grads: List[Tensor],
@@ -330,7 +337,8 @@ def _single_tensor_sophiag(params: List[Tensor],
                          weight_decay: float,
                          maximize: bool,
                          capturable: bool,
-                         version: int):
+                         version: int,
+                        ):
 
 
     for i, param in enumerate(params):
@@ -356,8 +364,9 @@ def _single_tensor_sophiag(params: List[Tensor],
 
         # Decay the first and second moment running average coefficient
         exp_avg.mul_(beta1).add_(grad, alpha=1 - beta1)
-        
-        if version == 0:
+        exp_avgs[i] = exp_avg
+
+        if version != 1:
             if capturable:
                 step = step_t
                 step_size = lr 
@@ -370,6 +379,9 @@ def _single_tensor_sophiag(params: List[Tensor],
                 step_size_neg = - lr 
                 
                 ratio = (exp_avg.abs() / (rho * bs * hess + 1e-15)).clamp(None,1)
-                param.addcmul_(exp_avg.sign(), ratio, value=step_size_neg)
-        
+                # theta += -lr * (exp_avg.sign() * ratio)
+                if not version == 2:
+                    param.addcmul_(exp_avg.sign(), ratio, value=step_size_neg)
+        else: ratio = 0
+    return exp_avgs, ratio
         

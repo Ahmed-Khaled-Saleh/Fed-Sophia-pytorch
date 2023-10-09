@@ -38,7 +38,8 @@ class edgeDONE(Edgebase):
     def get_full_grad(self):
         for X, y in self.trainloaderfull:
             X, y = (X.to(self.device), y.to(self.device))
-            y = y.to(torch.float32)
+            if self.model == "logistic_regression":
+                y = y.to(torch.float32)
             self.model.zero_grad()
             output = self.model(X)
             loss = self.loss(output, y)
@@ -57,7 +58,8 @@ class edgeDONE(Edgebase):
 
         # Sample a mini-batch (D_i)
         (X, y) = self.get_next_train_batch()
-        y = y.to(torch.float32)
+        if self.model == "logistic_regression":
+            y = y.to(torch.float32)
         loss = self.total_loss(X=X, y=y, full_batch=False, regularize=True)
         # loss.backward(create_graph=True)
         #grads = []

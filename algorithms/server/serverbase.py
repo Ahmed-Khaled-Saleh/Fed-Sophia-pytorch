@@ -27,10 +27,11 @@ class ServerBase:
         self.algorithm = algorithm
         self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc = [], [], []
         self.times = times
-        p  = [param for param in self.model.parameters()]
-        self.ema_grads = [torch.zeros_like(p[0],  memory_format=torch.preserve_format), torch.zeros_like(p[1],  memory_format=torch.preserve_format)]
-        self.ema_hess = [torch.zeros_like(p[0],  memory_format=torch.preserve_format), torch.zeros_like(p[1],  memory_format=torch.preserve_format)]
-        
+        # p  = [param for param in self.model.parameters()]
+        self.ema_grads = [torch.zeros_like(item, memory_format=torch.preserve_format) for i, item in enumerate(self.model.parameters())]
+        self.ema_hess = [torch.zeros_like(item, memory_format=torch.preserve_format) for i, item in enumerate(self.model.parameters())] 
+        self.clippings = [torch.zeros_like(item, memory_format=torch.preserve_format) for i, item in enumerate(self.model.parameters())]
+
     def aggregate_grads(self):
         assert (self.edges is not None and len(self.edges) > 0)
         for param in self.model.parameters():
@@ -75,14 +76,16 @@ class ServerBase:
             for server_param, edge_param in zip(self.model.parameters(), edge.get_parameters()):
                 server_param.data = server_param.data + edge_param.data.clone() * ratio
 
-        elif (self.algorithm == "Sophia-2"):
+        elif (self.algorithm == "Sophia-1"):
             # import pdb; pdb.set_trace()
             for server_param, ema_grad, ema_hess in zip(self.model.parameters(), self.ema_grads, self.ema_hess):
-                ratio_ = (ema_grad.data.clone().abs() / (0.1 * 1 * ema_hess.data.clone() + 1e-15)).clamp(None,1)
+                ratio_ = (ema_grad.data.clone().abs() / (20 * 1 * ema_hess.data.clone() + 1e-15)).clamp(None,1)
                 server_param.data = server_param.data - self.eta  * ratio_ * ema_grad.data.clone().sign()
                 
                 #server_param.data = server_param.data - self.eta * self.L * server_param.data.clone()
-                
+        elif (self.algorithm == "Sophia-2"): 
+            for server_param, clippings in zip(self.model.parameters(), self.clippings):
+                server_param.data = server_param.data - self.eta * clippings.data.clone().sign()
         else: # for first order and second order only aggregate the direction dt
             for server_param, edge_param in zip(self.model.parameters(), edge.get_dt()):
                 server_param.data = server_param.data + self.eta * ratio * edge_param.data.clone()
@@ -109,9 +112,16 @@ class ServerBase:
             for edge in self.selected_edges:
                 self.add_parameters(edge, edge.train_samples / total_train)   
 
+        elif self.algorithm == "Sophia-1":
+            for param in self.model.parameters():
+                param.data.zero_()
+            self.aggregate_ema()
+            self.add_parameters(edge= None, ratio = 1 / self.num_edges)
+
         elif self.algorithm == "Sophia-2":
             for param in self.model.parameters():
                 param.data.zero_()
+            self.aggreagate_clippings()
             self.add_parameters(edge= None, ratio = 1 / self.num_edges)
 
         elif self.algorithm == "Sophia":
@@ -191,9 +201,8 @@ class ServerBase:
     def evaluate(self):
         stats = self.test()  
         stats_train = self.train_error_and_loss()
-
         if(self.dataset == "Linear_synthetic"):
-            glob_acc = (np.sum(stats[3])*1.0/len(stats[0])).item()
+            glob_acc = np.sum([i for i in stats_train[2]]) *1.0/len(stats_train[0])
 
         else:
             glob_acc = np.sum(stats[2])*1.0/np.sum(stats[1])
@@ -237,6 +246,11 @@ class ServerBase:
             for ema_grad, ema_hess, edge_ema_grad, edge_ema_hess in zip(self.ema_grads, self.ema_hess, edge.get_ema_grads(), edge.get_ema_hess()):
                 ema_grad.data = ema_grad.data + edge_ema_grad.data.clone() / self.num_edges
                 ema_hess.data = ema_hess.data + edge_ema_hess.data.clone() / self.num_edges
+
+    def aggreagate_clippings(self):
+        for edge in self.selected_edges:
+            for clipping, edge_clipping in zip(self.clippings, edge.get_clippings()):
+                clipping.data = clipping.data + edge_clipping.data.clone() / self.num_edges
 
     def aggregate_newton(self):
         for param, dt in zip(self.model.parameters(), self.dt):

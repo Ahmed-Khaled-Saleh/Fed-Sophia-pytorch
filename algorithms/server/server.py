@@ -80,7 +80,8 @@ class Server(ServerBase):
             
             if (algorithm == "Sophia"):
                 edge = edgeSophia(device, id, train, test, model, batch_size, learning_rate, alpha, eta, L, local_epochs, optimizer)
-            
+            if (algorithm == "Sophia-1"):
+                edge = edgeSophia(device, id, train, test, model, batch_size, learning_rate, alpha, eta, L, local_epochs, optimizer)
             if (algorithm == "Sophia-2"):
                 edge = edgeSophia(device, id, train, test, model, batch_size, learning_rate, alpha, eta, L, local_epochs, optimizer)
 
@@ -140,6 +141,19 @@ class Server(ServerBase):
                 self.aggregate_parameters()
 
 
+        elif self.algorithm == "Sophia-1":
+            for glob_iter in range(self.num_glob_iters):
+                if(self.experiment):
+                    self.experiment.set_epoch( glob_iter + 1)
+                print("-------------Round number: ",glob_iter, " -------------")
+                self.send_parameters()
+                self.evaluate()
+                self.selected_edges = self.select_edges(glob_iter, self.num_edges)
+
+                for edge in self.selected_edges:
+                    edge.train(self.local_epochs, glob_iter)
+                self.aggregate_parameters()
+
         elif self.algorithm == "Sophia-2":
             for glob_iter in range(self.num_glob_iters):
                 if(self.experiment):
@@ -151,9 +165,7 @@ class Server(ServerBase):
 
                 for edge in self.selected_edges:
                     edge.train(self.local_epochs, glob_iter)
-                self.aggregate_ema()
                 self.aggregate_parameters()
-
 
         elif self.algorithm == "DANE":
             for glob_iter in range(self.num_glob_iters):
