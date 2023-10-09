@@ -5,8 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
-.pt
-.json
+*.pt
+*.json
 results
 models/
 # Distribution / packaging
