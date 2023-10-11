@@ -15,7 +15,7 @@ class edgeFEDL(Edgebase):
         elif model[1] == "logistic_regression":
             self.loss = nn.BCELoss()
         else:
-            self.loss = nn.NLLLoss()
+            self.loss = nn.CrossEntropyLoss()#nn.NLLLoss()
 
         self.optimizer = DANEOptimizer(self.model.parameters(), lr=self.learning_rate, L = self.L, eta = self.alpha)
 

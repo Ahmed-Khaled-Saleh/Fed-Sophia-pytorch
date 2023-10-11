@@ -16,9 +16,9 @@ class edgeSophia(Edgebase):
         elif model[1] == "logistic_regression":
             self.loss = nn.BCELoss()
         else:
-            self.loss = nn.NLLLoss()
+            self.loss = nn.CrossEntropyLoss()#nn.NLLLoss()
 
-        self.optimizer =  SophiaG(self.model.parameters(), lr=learning_rate, rho = 20, betas=(0.90, 0.95), weight_decay=0.0002, version=1)
+        self.optimizer =  SophiaG(self.model.parameters(), lr=learning_rate, rho = 20, betas=(0.90, 0.95), weight_decay=0.0002, version=0)
         # make a list of zeros-like tensors for EMA with the same shape as model params
         # import pdb; pdb.set_trace()
         self.ema_grads = [torch.zeros_like(item, memory_format=torch.preserve_format) for _, item in enumerate(self.model.parameters())]
@@ -43,25 +43,15 @@ class edgeSophia(Edgebase):
                 loss = self.loss(logits, Y) + self.regularize()
                 loss.backward()
                 _, self.ema_grads, self.clippings = self.optimizer.step()
-                self.optimizer.zero_grad(set_to_none=True)
+                self.optimizer.zero_grad()
                 iter_num += 1
 
                 if glob_iter % tau != 0:
                     continue
                 else:
                     # update hessian EMA
-                    if isinstance(self.model, Logistic_Regression):
-                        logit_layer = self.model.linear
-                    elif isinstance(self.model, DNN):
-                        X = torch.flatten(X, 1)
-                        X = F.relu(self.model.fc1(X))
-                        logit_layer = self.model.fc2
-                    elif isinstance(self.model, Mclr_CrossEntropy):
-                        logit_layer = self.model.linear
-                    elif isinstance(self.model, Mclr_Logistic):
-                        logit_layer = self.model.fc1
-                    else: logit_layer = self.model.linear
-                    logits = logit_layer(X)
+                    
+                    logits = self.model(X)
                     samp_dist = torch.distributions.Categorical(logits=logits)
                     y_sample = samp_dist.sample()
                     loss_sampled = F.cross_entropy(logits.view(-1, logits.size(-1)), y_sample.view(-1), ignore_index=-1)

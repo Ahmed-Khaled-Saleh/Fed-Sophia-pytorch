@@ -15,7 +15,7 @@ class edgeAvg(Edgebase):
         elif model[1] == "logistic_regression":
             self.loss = nn.BCELoss()
         else:
-            self.loss = nn.NLLLoss()
+            self.loss = nn.CrossEntropyLoss()#nn.NLLLoss()
 
         self.optimizer =  torch.optim.SGD(self.model.parameters(), lr=self.learning_rate)
 

@@ -25,8 +25,8 @@ class Net(nn.Module):
         x = self.fc1(x)
         x = nn.ReLU()(x)
         x = self.fc2(x)
-        output = F.log_softmax(x, dim=1)
-        return output
+        #output = F.log_softmax(x, dim=1)
+        return x
 
 class Mclr_Logistic(nn.Module):
     def __init__(self, input_dim = 123, output_dim = 2):
@@ -61,7 +61,7 @@ class DNN(nn.Module):
         x = torch.flatten(x, 1)
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
-        x = F.log_softmax(x, dim=1)
+        # x = F.log_softmax(x, dim=1)
         return x
 
 class Linear_Regression(nn.Module):
