@@ -23,7 +23,7 @@ import time
 # Implementation for Central Server
 class Server(ServerBase):
     def __init__(self, experiment, device, dataset, algorithm, model, batch_size, learning_rate, alpha, eta, L, num_glob_iters,
-                 local_epochs, optimizer, num_edges, times):
+                 local_epochs, optimizer, num_edges, times, tau):
         super().__init__(experiment, device, dataset,algorithm, model[0], batch_size, learning_rate, alpha, eta, L, num_glob_iters,
                          local_epochs, optimizer, num_edges, times)
 
@@ -78,13 +78,9 @@ class Server(ServerBase):
             if(algorithm == "GIANT"):
                 edge = edgeGIANT(device, id, train, test, model, batch_size, learning_rate, alpha, eta, L, local_epochs, optimizer)         
             
-            if (algorithm == "Sophia"):
-                edge = edgeSophia(device, id, train, test, model, batch_size, learning_rate, alpha, eta, L, local_epochs, optimizer)
-            if (algorithm == "Sophia-1"):
-                edge = edgeSophia(device, id, train, test, model, batch_size, learning_rate, alpha, eta, L, local_epochs, optimizer)
-            if (algorithm == "Sophia-2"):
-                edge = edgeSophia(device, id, train, test, model, batch_size, learning_rate, alpha, eta, L, local_epochs, optimizer)
-
+            if (algorithm == "Sophia" or algorithm == "Sophia-1" or algorithm == "Sophia-2"):
+                edge = edgeSophia(device, id, train, test, model, batch_size, learning_rate, alpha, eta, L, local_epochs, optimizer, tau)
+            
             self.edges.append(edge)
             self.total_train_samples += edge.train_samples
 

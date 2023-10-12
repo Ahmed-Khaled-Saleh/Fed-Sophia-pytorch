@@ -14,7 +14,7 @@ import torch
 torch.manual_seed(0)
 
 def main(experiment, dataset, algorithm, model, batch_size, learning_rate, alpha, eta, L, rho, num_glob_iters,
-         local_epochs, optimizer, numedges, times, commet, gpu):
+         local_epochs, optimizer, numedges, times, commet, gpu, tau):
 
     device = torch.device("cuda:{}".format(gpu) if torch.cuda.is_available() and gpu != -1 else "cpu")
 
@@ -56,8 +56,8 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, alpha
             model = Net().to(device), model
 
         if(commet):
-            experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "b_" + str(learning_rate) + "lr_" + str(alpha) + "al_" + str(eta) + "eta_" + str(L) + "L_" + str(rho) + "p_" +  str(num_glob_iters) + "ge_"+ str(local_epochs) + "le_"+ str(numedges) +"u")
-        server = Server(experiment, device, dataset, algorithm, model, batch_size, learning_rate, alpha, eta,  L, num_glob_iters, local_epochs, optimizer, numedges, i)
+            experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "b_" + str(learning_rate) + "lr_" + str(alpha) + "al_" + str(eta) + "eta_" + str(L) + "L_" + str(rho) + "p_" +  str(num_glob_iters) + "ge_"+ str(local_epochs) + "le_"+ str(numedges) +"u" + str(tau) + "tau")
+        server = Server(experiment, device, dataset, algorithm, model, batch_size, learning_rate, alpha, eta,  L, num_glob_iters, local_epochs, optimizer, numedges, i, tau)
         
         server.train()
         server.test()
@@ -83,7 +83,8 @@ if __name__ == "__main__":
     parser.add_argument("--times", type=int, default=1, help="running time")
     parser.add_argument("--commet", type=int, default=1, help="log data to comet")
     parser.add_argument("--gpu", type=int, default=0, help="Which GPU to run the experiments")
-    parser.add_argument("--exp_type", type=str, default="regular", help = "whether hyperparams or regular exp")
+    parser.add_argument("--exp_type", type=str, default="regular", help = "whether hyperparams or regular exp", choices=["regular", "hyperparams"])
+    parser.add_argument("--tau", type=int, default=10, help = "tau for Sophia")    
     args = parser.parse_args()
 
     print("=" * 80)
@@ -121,7 +122,8 @@ if __name__ == "__main__":
             "optimizer": args.optimizer,
             "numusers": args.numedges,
             "times" : args.times,
-            "gpu": args.gpu
+            "gpu": args.gpu,
+            "tau": args.tau
         }
         experiment.log_parameters(hyper_params)
     else:
@@ -144,5 +146,6 @@ if __name__ == "__main__":
         numedges=args.numedges,
         times = args.times,
         commet = args.commet,
-        gpu=args.gpu
+        gpu=args.gpu,
+        tau = args.tau
         )
