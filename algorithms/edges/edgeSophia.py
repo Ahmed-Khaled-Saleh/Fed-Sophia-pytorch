@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from algorithms.edges.edgebase import Edgebase
 from algorithms.optimizers.optimizer import *
 from algorithms.trainmodel.models import *
@@ -32,11 +33,11 @@ class edgeSophia(Edgebase):
         self.tau = tau
         self.lr = learning_rate
         self.optimizer =  SophiaG(self.model.parameters(), lr=self.lr, rho = 20, betas=(0.90, 0.95), weight_decay=0.0002, version=0)
-    
+        self.scheduler = ReduceLROnPlateau(self.optimizer, 'min', patience=5)
     def get_lr(self, it):
-        warmup_iters = 5 # how many steps to warm up for
-        lr_decay_iters = 60 
-        min_lr = 3.5e-4 
+        warmup_iters = 500 # how many steps to warm up for
+        lr_decay_iters = 1500 
+        min_lr = 0.0001
         # 1) linear warmup for warmup_iters steps
         if it < warmup_iters:
             return self.lr * it / warmup_iters
@@ -81,3 +82,9 @@ class edgeSophia(Edgebase):
                     self.ema_hess = self.optimizer.update_hessian()
                     self.optimizer.zero_grad(set_to_none=True)
                     self.model.zero_grad()
+            
+            # for X, y in self.testloader:
+            #     self.model.eval()
+            #     logits = self.model(X)
+            #     val_loss = self.loss(logits, y) + self.regularize()
+            # self.scheduler.step(val_loss)
