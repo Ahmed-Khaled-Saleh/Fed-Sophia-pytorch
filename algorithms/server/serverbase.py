@@ -228,7 +228,7 @@ class ServerBase:
         print("Average Global Accuracy          : ", glob_acc)
         print("Average Global Trainning Accuracy: ", train_acc)
         print("Average Global Trainning Loss    : ",train_loss)
-
+        return glob_acc, train_acc, train_loss
     def aggregate_dt(self):
         # cacluate average hvdt
         for edge in self.selected_edges:
