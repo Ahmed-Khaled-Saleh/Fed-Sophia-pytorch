@@ -57,9 +57,9 @@ class edgeSophia(Edgebase):
         loss = 0
         iter_num = 0
         for i in range(1, self.local_epochs + 1):
-            self.lr = self.get_lr(glob_iter)
-            for param_group in self.optimizer.param_groups:
-                param_group['lr'] = self.lr
+            # self.lr = self.get_lr(glob_iter)
+            # for param_group in self.optimizer.param_groups:
+            #     param_group['lr'] = self.lr
 
             for X, Y in self.trainloader:
                 logits = self.model(X)
@@ -74,7 +74,7 @@ class edgeSophia(Edgebase):
                 else:
                     # update hessian EMA
                     
-                    logits = self.model(X)
+                    logits = self.model(X) if self.algorithm != "logistic_regression" else self.model.linear(X)	
                     samp_dist = torch.distributions.Categorical(logits=logits)
                     y_sample = samp_dist.sample()
                     loss_sampled = F.cross_entropy(logits.view(-1, logits.size(-1)), y_sample.view(-1), ignore_index=-1)

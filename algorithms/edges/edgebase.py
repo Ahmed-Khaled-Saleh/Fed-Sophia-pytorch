@@ -96,7 +96,7 @@ class Edgebase:
         loss = 0
         for x, y in self.testloaderfull:
             x, y = x.to(self.device), y.to(self.device)
-            # y = y.to(torch.float32)
+            y = y.to(torch.float32) if self.model == "logistic_regression" else y
             output = self.model(x)
             if isinstance(self.model, Logistic_Regression):
                 test_acc += torch.sum(((output >= 0.5) == y).type(torch.int)).item()
@@ -114,7 +114,7 @@ class Edgebase:
         loss = 0
         for x, y in self.trainloaderfull:
             x, y = x.to(self.device), y.to(self.device)
-            # y = y.to(torch.float32)
+            y = y.to(torch.float32) if self.model == "logistic_regression" else y
             output = self.model(x)
             if isinstance(self.model, Logistic_Regression):
                 train_acc += torch.sum(((output >= 0.5) == y).type(torch.int)).item()
@@ -177,13 +177,13 @@ class Edgebase:
         if X is None:
             if not full_batch:
                 X, y = X.to(self.device), y.to(self.device)
-                # y = y.to(torch.float32)
+                y = y.to(torch.float32) if self.model == "logistic_regression" else y
                 X, y = self.get_next_train_batch()
         loss = 0.
         if full_batch:
             for X, y in self.trainloaderfull:
                 X, y = X.to(self.device), y.to(self.device)
-                # y = y.to(torch.float32)
+                y = y.to(torch.float32) if self.model == "logistic_regression" else y
                 loss += self.loss(model(X), y)
         else:
             loss = self.loss(model(X), y)
