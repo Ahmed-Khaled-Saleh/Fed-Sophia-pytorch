@@ -1,16 +1,25 @@
 
 #!/bin/bash
-python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.005  --tau 10 --num_global_iters 100 --local_epochs 1
-python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.01  --tau 10 --num_global_iters 100 --local_epochs 1 
-python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.1  --tau 10 --num_global_iters 100 --local_epochs 1 
+python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.005  --tau 10 --L 0.001 --num_global_iters 100 --local_epochs 1
+python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.01  --tau 10 --L 0.001 --num_global_iters 100 --local_epochs 1 
+python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.1  --tau 10 --L 0.001 --num_global_iters 100 --local_epochs 1 
 
-python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.005  --tau 5 --num_global_iters 100 --local_epochs 1
-python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.01  --tau 5 --num_global_iters 100 --local_epochs 1
-python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.1  --tau 5 --num_global_iters 100 --local_epochs 1
+python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.005  --tau 5 --L 0.001 --num_global_iters 100 --local_epochs 1
+python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.01  --tau 5 --L 0.001 --num_global_iters 100 --local_epochs 1
+python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.1  --tau 5 --L 0.001 --num_global_iters 100 --local_epochs 1
 
-python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.005  --tau 1 --num_global_iters 100 --local_epochs 1
-python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.01  --tau 1 --num_global_iters 100 --local_epochs 1
-python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.1  --tau 1 --num_global_iters 100 --local_epochs 1
+python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.005  --tau 1 --L 0.001 --num_global_iters 100 --local_epochs 1
+python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.01  --tau 1 --L 0.001 --num_global_iters 100 --local_epochs 1
+python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.1  --tau 1 --L 0.001 --num_global_iters 100 --local_epochs 1
+
+python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.1  --tau 1 --L 0.001 --num_global_iters 100 --local_epochs 5
+python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.1  --tau 1 --L 0.001 --num_global_iters 100 --local_epochs 5
+python run_all.py --dataset Mnist --model MLP --algorithm Sophia --learning_rate 0.1  --tau 1 --L 0.001 --num_global_iters 100 --local_epochs 5
+
+
+
+
+
 
 ================================================================================================================================================================
 # Experiment 1

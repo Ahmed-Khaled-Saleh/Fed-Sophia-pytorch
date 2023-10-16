@@ -74,7 +74,7 @@ class edgeSophia(Edgebase):
                 else:
                     # update hessian EMA
                     
-                    logits = self.model(X) if self.algorithm != "logistic_regression" else self.model.linear(X)	
+                    logits = self.model(X) #if self.algorithm != "logistic_regression" else self.model.linear(X)	
                     samp_dist = torch.distributions.Categorical(logits=logits)
                     y_sample = samp_dist.sample()
                     loss_sampled = F.cross_entropy(logits.view(-1, logits.size(-1)), y_sample.view(-1), ignore_index=-1)
