@@ -78,7 +78,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_global_iters", type=int, default=100)
     parser.add_argument("--local_epochs", type=int, default=20)
     parser.add_argument("--optimizer", type=str, default="SGD",choices=["SGD"])
-    parser.add_argument("--algorithm", type=str, default="Sophia",choices=["Sophia","Sophia-1","Sophia-2","DONE", "GD", "DANE", "Newton", "GT", "PGT", "FEDL","GIANT"])
+    parser.add_argument("--algorithm", type=str, default="Sophia",choices=["Sophia","Sophia-1","Sophia-2","DONE", "GD", "DANE", "Newton", "FedAvg", "GT", "PGT", "FEDL","GIANT"])
     parser.add_argument("--numedges", type=int, default=32,help="Number of Edges per round")
     parser.add_argument("--times", type=int, default=1, help="running time")
     parser.add_argument("--commet", type=int, default=1, help="log data to comet")
@@ -105,7 +105,7 @@ if __name__ == "__main__":
         name = "sophia_exps" if args.exp_type == "regular" else "sophia-hyper-parameters"
         experiment = Experiment(
             api_key="lhdQnruUATiAZPyU7Qp2zFiVX",
-            project_name="sophia-mlp",
+            project_name="sophia-clean-new",
             workspace="ahmed-khaled-saleh",
             )
         hyper_params = {

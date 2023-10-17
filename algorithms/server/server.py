@@ -79,7 +79,7 @@ class Server(ServerBase):
                 edge = edgeGIANT(device, id, train, test, model, batch_size, learning_rate, alpha, eta, L, local_epochs, optimizer)         
             
             if (algorithm == "Sophia" or algorithm == "Sophia-1" or algorithm == "Sophia-2"):
-                edge = edgeSophia(device, id, train, test, model, batch_size, learning_rate, alpha, eta, L, local_epochs, optimizer, tau)
+                edge = edgeSophia(device, id, train, test, model, batch_size, learning_rate, alpha, eta, L, local_epochs, optimizer, tau, exp=experiment)
             
             self.edges.append(edge)
             self.total_train_samples += edge.train_samples

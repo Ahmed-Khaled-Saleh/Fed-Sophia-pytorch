@@ -104,7 +104,7 @@ class ServerBase:
                 self.add_parameters(edge, 1 / self.num_edges)
                 #self.add_parameters(edge, edge.train_samples / self.total_train_samples)
         
-        elif self.algorithm == "FedAvg" or self.algorithm == "GD" or self.algorithm == "FEDL":
+        elif self.algorithm == "FedAvg" or self.algorithm == "GD" or self.algorithm == "FEDL" or self.algorithm == "Sophia":
             for param in self.model.parameters():
                 param.data.zero_() # = torch.zeros_like(param.data)
             for edge in self.selected_edges:
@@ -124,11 +124,11 @@ class ServerBase:
             self.aggreagate_clippings()
             self.add_parameters(edge= None, ratio = 1 / self.num_edges)
 
-        elif self.algorithm == "Sophia":
-            for param in self.model.parameters():
-                param.data.zero_() # = torch.zeros_like(param.data)
-            for edge in self.selected_edges:
-                self.add_parameters(edge, 1 / self.num_edges)
+        # elif self.algorithm == "Sophia":
+        #     for param in self.model.parameters():
+        #         param.data.zero_() # = torch.zeros_like(param.data)
+        #     for edge in self.selected_edges:
+        #         self.add_parameters(edge, 1 / self.num_edges)
         
         else: # first order, second order 
             for edge in self.selected_edges:

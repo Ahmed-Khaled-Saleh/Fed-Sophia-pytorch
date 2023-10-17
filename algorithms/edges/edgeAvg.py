@@ -26,6 +26,6 @@ class edgeAvg(Edgebase):
             (X, y) = self.get_next_train_batch()
             self.optimizer.zero_grad()
             output = self.model(X)
-            loss = self.loss(output, y)
+            loss = self.loss(output, y) + self.regularize()
             loss.backward()
             self.optimizer.step()

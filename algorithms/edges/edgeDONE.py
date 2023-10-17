@@ -42,7 +42,7 @@ class edgeDONE(Edgebase):
                 y = y.to(torch.float32)
             self.model.zero_grad()
             output = self.model(X)
-            loss = self.loss(output, y)
+            loss = self.loss(output, y) + self.regularize()
             loss.backward()
 
     def train(self, epochs, glob_iter):
