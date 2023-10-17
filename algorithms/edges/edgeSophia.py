@@ -7,7 +7,7 @@ from algorithms.trainmodel.models import *
 
 class edgeSophia(Edgebase):
     def __init__(self, device, numeric_id, train_data, test_data, model, batch_size, learning_rate, alpha, eta, L,
-                 local_epochs, optimizer, tau, exp):
+                 local_epochs, optimizer, tau, rho, exp):
         super().__init__(device, numeric_id, train_data, test_data, model[0], batch_size, learning_rate, alpha, eta, L,
                          local_epochs)
 
@@ -33,7 +33,8 @@ class edgeSophia(Edgebase):
         self.tau = tau
         self.exp = exp
         self.lr = learning_rate
-        self.optimizer =  SophiaG(self.model.parameters(), lr=self.lr, rho = 20, betas=(0.90, 0.95), weight_decay=0.02, version=0)
+        self.rho = rho
+        self.optimizer =  SophiaG(self.model.parameters(), lr=self.lr, rho = self.rho, betas=(0.965, 0.95), weight_decay=0.05, version=0)
         self.scheduler = ReduceLROnPlateau(self.optimizer, 'min', patience=5)
     def get_lr(self, it):
         warmup_iters = 500 # how many steps to warm up for
@@ -77,7 +78,7 @@ class edgeSophia(Edgebase):
                         print("======================clipping time=======================")
                         self.exp.log_metric("clipping time",clip_time)
                 
-                if iter_num % self.tau != 0:
+                if glob_iter % self.tau != 0:
                     continue
                 else:
                     # update hessian EMA

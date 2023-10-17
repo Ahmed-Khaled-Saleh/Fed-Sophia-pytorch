@@ -57,7 +57,7 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, alpha
 
         if(commet):
             experiment.set_name(dataset + "_" + algorithm + "_" + model[1] + "_" + str(batch_size) + "b_" + str(learning_rate) + "lr_" + str(alpha) + "al_" + str(eta) + "eta_" + str(L) + "L_" + str(rho) + "p_" +  str(num_glob_iters) + "ge_"+ str(local_epochs) + "le_"+ str(numedges) +"u" + str(tau) + "tau")
-        server = Server(experiment, device, dataset, algorithm, model, batch_size, learning_rate, alpha, eta,  L, num_glob_iters, local_epochs, optimizer, numedges, i, tau)
+        server = Server(experiment, device, dataset, algorithm, model, batch_size, learning_rate, alpha, eta,  L, num_glob_iters, local_epochs, optimizer, numedges, i, tau, rho)
         
         server.train()
         server.test()
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     parser.add_argument("--alpha", type=float, default=0.03, help="alpha for DONE and Newton using in richason interation")
     parser.add_argument("--eta", type=float, default=1.0, help = "eta is parameter for DANE")
     parser.add_argument("--L", type=float, default=0.02, help="Regularization term")
-    parser.add_argument("--rho", type=int, default=0, help="Condition number")
+    parser.add_argument("--rho", type=float, default=0, help="Condition number")
     parser.add_argument("--num_global_iters", type=int, default=100)
     parser.add_argument("--local_epochs", type=int, default=20)
     parser.add_argument("--optimizer", type=str, default="SGD",choices=["SGD"])
