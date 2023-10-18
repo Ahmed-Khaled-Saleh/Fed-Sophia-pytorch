@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 from algorithms.edges.edgebase import Edgebase
 from algorithms.optimizers.optimizer import *
 from algorithms.trainmodel.models import *
@@ -35,11 +35,12 @@ class edgeSophia(Edgebase):
         self.lr = learning_rate
         self.rho = rho
         self.optimizer =  SophiaG(self.model.parameters(), lr=self.lr, rho = self.rho, betas=(0.965, 0.95), weight_decay=0.05, version=0)
+        self.step_lr = StepLR(self.optimizer, step_size=20, gamma=0.0001)
         self.scheduler = ReduceLROnPlateau(self.optimizer, 'min', patience=5)
     def get_lr(self, it):
-        warmup_iters = 500 # how many steps to warm up for
-        lr_decay_iters = 1500 
-        min_lr = 0.0001
+        warmup_iters = 30 # how many steps to warm up for
+        lr_decay_iters = 80 
+        min_lr = 1e-5
         # 1) linear warmup for warmup_iters steps
         if it < warmup_iters:
             return self.lr * it / warmup_iters
@@ -56,42 +57,44 @@ class edgeSophia(Edgebase):
         self.model.train()
         grad_clip = 1
         
-        loss = 0
+        
         iter_num = 0
         for i in range(1, self.local_epochs + 1):
             # self.lr = self.get_lr(glob_iter)
             # for param_group in self.optimizer.param_groups:
             #     param_group['lr'] = self.lr
+            #loss = 0
+            # for X, Y in self.trainloader:
+            (X, Y) = self.get_next_train_batch()
+            logits = self.model(X)
+            loss = self.loss(logits, Y) + self.regularize()
+            loss.backward()
+            _, self.ema_grads, self.clippings = self.optimizer.step()
+            self.optimizer.zero_grad()
+            
 
-            for X, Y in self.trainloader:
-                logits = self.model(X)
-                loss = self.loss(logits, Y) + self.regularize()
-                loss.backward()
-                _, self.ema_grads, self.clippings = self.optimizer.step()
-                self.optimizer.zero_grad()
-                
-
-                if grad_clip != 0.0:
-                    total_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), grad_clip)
-                    if total_norm.item() > grad_clip:
-                        clip_time += 1
-                        print("======================clipping time=======================")
-                        self.exp.log_metric("clipping time",clip_time)
-                
-                if glob_iter % self.tau != 0:
-                    continue
-                else:
-                    # update hessian EMA
-                    #X_batch, _ = self.get_next_train_batch()
-                    logits = self.model(X) #if self.algorithm != "logistic_regression" else self.model.linear(X)	
-                    samp_dist = torch.distributions.Categorical(logits=logits)
-                    y_sample = samp_dist.sample()
-                    loss_sampled = F.cross_entropy(logits.view(-1, logits.size(-1)), y_sample.view(-1), ignore_index=-1)
-                    loss_sampled.backward()
-                    self.ema_hess = self.optimizer.update_hessian()
-                    self.optimizer.zero_grad(set_to_none=True)
-                    self.model.zero_grad()
-                iter_num += 1
+            if grad_clip != 0.0:
+                total_norm = torch.nn.utils.clip_grad_norm_(self.model.parameters(), grad_clip)
+                if total_norm.item() > grad_clip:
+                    clip_time += 1
+                    print("======================clipping time=======================")
+                    self.exp.log_metric("clipping time",clip_time)
+            
+            if glob_iter % self.tau != 0:
+                continue
+            else:
+                # update hessian EMA
+                #X_batch, _ = self.get_next_train_batch()
+                logits = self.model(X) #if self.algorithm != "logistic_regression" else self.model.linear(X)	
+                samp_dist = torch.distributions.Categorical(logits=logits)
+                y_sample = samp_dist.sample()
+                loss_sampled = F.cross_entropy(logits.view(-1, logits.size(-1)), y_sample.view(-1), ignore_index=-1)
+                loss_sampled.backward()
+                self.ema_hess = self.optimizer.update_hessian()
+                self.optimizer.zero_grad(set_to_none=True)
+                self.model.zero_grad()
+            iter_num += 1
+        self.step_lr.step()
             # for X, y in self.testloader:
             #     self.model.eval()
             #     logits = self.model(X)

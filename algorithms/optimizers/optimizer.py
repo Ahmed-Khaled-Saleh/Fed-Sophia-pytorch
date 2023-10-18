@@ -383,5 +383,5 @@ def _single_tensor_sophiag(params: List[Tensor],
                 if not version == 2:
                     param.addcmul_(exp_avg.sign(), ratio, value=step_size_neg)
         else: ratio = 0
-    return exp_avgs, ratio
+    return exp_avgs, (exp_avg.abs() / (rho * bs * hess + 1e-15))
         

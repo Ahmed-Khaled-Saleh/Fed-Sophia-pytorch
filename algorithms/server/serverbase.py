@@ -104,7 +104,7 @@ class ServerBase:
                 self.add_parameters(edge, 1 / self.num_edges)
                 #self.add_parameters(edge, edge.train_samples / self.total_train_samples)
         
-        elif self.algorithm == "FedAvg" or self.algorithm == "GD" or self.algorithm == "FEDL":# or self.algorithm == "Sophia":
+        elif self.algorithm == "FedAvg" or self.algorithm == "GD" or self.algorithm == "FEDL" or self.algorithm == "Sophia":
             for param in self.model.parameters():
                 param.data.zero_() # = torch.zeros_like(param.data)
             for edge in self.selected_edges:
@@ -203,18 +203,23 @@ class ServerBase:
         stats_train = self.train_error_and_loss()
         if(self.dataset == "Linear_synthetic"):
             glob_acc = np.sum([i for i in stats_train[2]]) *1.0/len(stats_train[0])
+            globa_acc_test = np.sum([i for i in stats[2]]) *1.0/len(stats[0])
 
         else:
             glob_acc = np.sum(stats[2])*1.0/np.sum(stats[1])
+            globa_acc_test = np.sum(stats[2])*1.0/np.sum(stats[1])
 
         train_acc = np.sum(stats_train[2])*1.0/np.sum(stats_train[1])
+        test_acc = np.sum(stats[2])*1.0/np.sum(stats[1])
         # train_loss = np.dot(stats_train[3], stats_train[1])*1.0/np.sum(stats_train[1])
 
         if self.algorithm == "FedAvg" or self.algorithm == "GD" or self.algorithm == "FEDL":
             train_loss = sum([x * y for (x, y) in zip(stats_train[1], stats_train[3])]).item() / np.sum(stats_train[1])
+            test_loss = sum([x * y for (x, y) in zip(stats[1], stats[3])]).item() / np.sum(stats[1])
         else:
             # import pdb; pdb.set_trace()
             train_loss = np.sum([i.item() for i in stats_train[3]]) *1.0/len(stats_train[0])
+            test_loss = np.sum([i.item() for i in stats[3]]) *1.0/len(stats[0])
 
 
         self.rs_glob_acc.append(glob_acc)
@@ -224,6 +229,10 @@ class ServerBase:
             self.experiment.log_metric("glob_acc",glob_acc)
             self.experiment.log_metric("train_acc",train_acc)
             self.experiment.log_metric("train_loss",train_loss)
+            self.experiment.log_metric("test_loss",test_loss)
+            self.experiment.log_metric("globa_acc_test",globa_acc_test)
+            self.experiment.log_metric("test_acc",test_acc)
+
         #print("stats_train[1]",stats_train[3][0])
         print("Average Global Accuracy          : ", glob_acc)
         print("Average Global Trainning Accuracy: ", train_acc)
