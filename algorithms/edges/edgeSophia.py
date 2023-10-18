@@ -34,7 +34,7 @@ class edgeSophia(Edgebase):
         self.exp = exp
         self.lr = learning_rate
         self.rho = rho
-        self.optimizer =  SophiaG(self.model.parameters(), lr=self.lr, rho = self.rho, betas=(0.965, 0.95), weight_decay=0.05, version=0)
+        self.optimizer =  SophiaG(self.model.parameters(), lr=self.lr, rho = self.rho, betas=(0.965, 0.95), weight_decay=0.02, version=0)
         self.step_lr = StepLR(self.optimizer, step_size=20, gamma=0.0001)
         self.scheduler = ReduceLROnPlateau(self.optimizer, 'min', patience=5)
     def get_lr(self, it):
@@ -94,7 +94,7 @@ class edgeSophia(Edgebase):
                 self.optimizer.zero_grad(set_to_none=True)
                 self.model.zero_grad()
             iter_num += 1
-        self.step_lr.step()
+        #self.step_lr.step()
             # for X, y in self.testloader:
             #     self.model.eval()
             #     logits = self.model(X)
