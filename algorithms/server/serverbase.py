@@ -26,6 +26,7 @@ class ServerBase:
         self.L = L
         self.algorithm = algorithm
         self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc = [], [], []
+        self.rs_test_acc, rs_test_loss = [], []
         self.times = times
         # p  = [param for param in self.model.parameters()]
         self.ema_grads = [torch.zeros_like(item, memory_format=torch.preserve_format) for i, item in enumerate(self.model.parameters())]
@@ -167,6 +168,8 @@ class ServerBase:
                 hf.create_dataset('rs_glob_acc', data=self.rs_glob_acc)
                 hf.create_dataset('rs_train_acc', data=self.rs_train_acc)
                 hf.create_dataset('rs_train_loss', data=self.rs_train_loss)
+                hf.create_dataset('rs_test_acc', data=self.rs_test_acc)
+                hf.create_dataset('rs_test_loss', data=self.rs_test_loss)
                 hf.close()
 
     def test(self):
@@ -225,6 +228,8 @@ class ServerBase:
         self.rs_glob_acc.append(glob_acc)
         self.rs_train_acc.append(train_acc)
         self.rs_train_loss.append(train_loss)
+        self.rs_test_acc.append(globa_acc_test)
+        self.rs_test_loss.append(test_loss)
         if(self.experiment):
             self.experiment.log_metric("glob_acc",glob_acc)
             self.experiment.log_metric("train_acc",train_acc)
