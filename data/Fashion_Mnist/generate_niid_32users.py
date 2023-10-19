@@ -1,4 +1,3 @@
-from sklearn.datasets import fetch_mldata
 from tqdm import trange
 import numpy as np
 import random
