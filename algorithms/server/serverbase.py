@@ -26,7 +26,7 @@ class ServerBase:
         self.L = L
         self.algorithm = algorithm
         self.rs_train_acc, self.rs_train_loss, self.rs_glob_acc = [], [], []
-        self.rs_test_acc, rs_test_loss = [], []
+        self.rs_test_acc, self.rs_test_loss = [], []
         self.times = times
         # p  = [param for param in self.model.parameters()]
         self.ema_grads = [torch.zeros_like(item, memory_format=torch.preserve_format) for i, item in enumerate(self.model.parameters())]
