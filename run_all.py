@@ -84,7 +84,8 @@ if __name__ == "__main__":
     parser.add_argument("--commet", type=int, default=1, help="log data to comet")
     parser.add_argument("--gpu", type=int, default=0, help="Which GPU to run the experiments")
     parser.add_argument("--exp_type", type=str, default="regular", help = "whether hyperparams or regular exp", choices=["regular", "hyperparams"])
-    parser.add_argument("--tau", type=int, default=10, help = "tau for Sophia")    
+    parser.add_argument("--tau", type=int, default=10, help = "tau for Sophia")
+    parser.add_argument("--place", type=str, default="cnn-fmnist-new", help = "which exp folder")    
     args = parser.parse_args()
 
     print("=" * 80)
@@ -105,7 +106,7 @@ if __name__ == "__main__":
         name = "sophia_exps" if args.exp_type == "regular" else "sophia-hyper-parameters"
         experiment = Experiment(
             api_key="lhdQnruUATiAZPyU7Qp2zFiVX",
-            project_name="mlp-sophia-new",
+            project_name=args.place,
             workspace="ahmed-khaled-saleh",
             )
         hyper_params = {
