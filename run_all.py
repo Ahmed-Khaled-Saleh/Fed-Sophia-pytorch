@@ -105,7 +105,7 @@ if __name__ == "__main__":
         name = "sophia_exps" if args.exp_type == "regular" else "sophia-hyper-parameters"
         experiment = Experiment(
             api_key="lhdQnruUATiAZPyU7Qp2zFiVX",
-            project_name="cnn-mnist",
+            project_name="mlp-sophia-new",
             workspace="ahmed-khaled-saleh",
             )
         hyper_params = {
