@@ -22,6 +22,7 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, alpha
         "a9a": 123,
         "Mnist": 784,
         "w8a": 300,
+        "Fashion_Mnist": 784,
         "human_activity": 561,
         "phishing": 68,
         "linear_regression": 40,
@@ -31,6 +32,7 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, alpha
     out_dim = {
         "a9a": 2,
         "Mnist": 10,
+        "Fashion_Mnist": 10,
         "w8a": 2,
         "human_activity": 6,
         "phishing": 2,
