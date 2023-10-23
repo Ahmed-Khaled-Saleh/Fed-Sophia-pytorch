@@ -38,6 +38,13 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, alpha
         "phishing": 2,
     }
 
+    import eco2ai
+
+    tracker = eco2ai.Tracker(project_name="YourProjectName", experiment_description="training the <your model> model")
+
+    tracker.start()
+
+
     for i in range(times):
         print("---------------Running time:------------",i)
 
@@ -63,6 +70,7 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, alpha
         
         server.train()
         server.test()
+    tracker.stop()
 
 
 
