@@ -40,7 +40,9 @@ def main(experiment, dataset, algorithm, model, batch_size, learning_rate, alpha
 
     import eco2ai
 
-    tracker = eco2ai.Tracker(project_name="YourProjectName", experiment_description="training the <your model> model")
+    pro_name = dataset + "_" + algorithm + "_" + model + "_" + str(batch_size) + "b_" + str(learning_rate) + "lr_" + str(alpha) + "al_" + str(eta) + "eta_" + str(L) + "L_" + str(rho) + "p_" +  str(num_glob_iters) + "ge_"+ str(local_epochs) + "le_"+ str(numedges) +"u" + str(tau) + "tau"
+    tracker = eco2ai.Tracker(project_name=pro_name
+                            , experiment_description=f"training the {algorithm} model")
 
     tracker.start()
 
